@@ -3,16 +3,16 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import Register from "./models/RegisterModel.js";
-import Apply from "./models/ApplyModel.js";
-import Enroll from "./models/EnrollModel.js";
+import registerRoutes from "./routes/registerRoutes.js";
+import applyRoutes from "./routes/applyRoutes.js";
+import enrollRoutes from "./routes/enrollRoutes.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-// ✅ Allow both frontend and local origins
+// ✅ CORS Setup
 app.use(
   cors({
     origin: [
@@ -20,11 +20,10 @@ app.use(
       "http://localhost:5173",
     ],
     methods: ["GET", "POST"],
-    credentials: true,
   })
 );
 
-// ✅ Connect MongoDB
+// ✅ MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -33,47 +32,15 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// 💾 Register Form
-app.post("/api/register", async (req, res) => {
-  try {
-    const newUser = new Register(req.body);
-    await newUser.save();
-    res
-      .status(201)
-      .json({ success: true, message: "Registration Successful!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
+// ✅ Routes
+app.use("/api/register", registerRoutes);
+app.use("/api/apply", applyRoutes);
+app.use("/api/enroll", enrollRoutes);
 
-// 💼 Apply Form
-app.post("/api/apply", async (req, res) => {
-  try {
-    const newApply = new Apply(req.body);
-    await newApply.save();
-    res.status(201).json({ success: true, message: "Application Submitted!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 📘 Enroll Form
-app.post("/api/enroll", async (req, res) => {
-  try {
-    const newEnroll = new Enroll(req.body);
-    await newEnroll.save();
-    res.status(201).json({ success: true, message: "Enrollment Completed!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ✅ Root route (for Render test)
+// ✅ Root route (for testing)
 app.get("/", (req, res) => {
-  res.send("✅ Aaruchudar Workshop | Course | Internship Backend is running!");
+  res.send("✅ Aaruchudar Workshop | Course | Internship Backend is running successfully!");
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
-);
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
