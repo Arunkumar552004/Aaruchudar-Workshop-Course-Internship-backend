@@ -11,9 +11,20 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
 
-// ✅ MongoDB Connection
+// ✅ Allow both frontend and local origins
+app.use(
+  cors({
+    origin: [
+      "https://aaruchudar-workshop-course-internship-dopa.onrender.com",
+      "http://localhost:5173",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+
+// ✅ Connect MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -27,9 +38,10 @@ app.post("/api/register", async (req, res) => {
   try {
     const newUser = new Register(req.body);
     await newUser.save();
-    res.status(201).json({ success: true, message: "Registration Successful!" });
+    res
+      .status(201)
+      .json({ success: true, message: "Registration Successful!" });
   } catch (err) {
-    console.error("❌ Register Error:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -41,7 +53,6 @@ app.post("/api/apply", async (req, res) => {
     await newApply.save();
     res.status(201).json({ success: true, message: "Application Submitted!" });
   } catch (err) {
-    console.error("❌ Apply Error:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -53,19 +64,16 @@ app.post("/api/enroll", async (req, res) => {
     await newEnroll.save();
     res.status(201).json({ success: true, message: "Enrollment Completed!" });
   } catch (err) {
-    console.error("❌ Enroll Error:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// ✅ Root Route (Fix for Render "Cannot GET /")
+// ✅ Root route (for Render test)
 app.get("/", (req, res) => {
-  res.send("✅ Aaruchudar Workshop | Course | Internship Backend is running successfully!");
+  res.send("✅ Aaruchudar Workshop | Course | Internship Backend is running!");
 });
 
-// ✅ Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log("🌐 Your Render service is live 🎉");
-});
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
