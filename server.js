@@ -8,13 +8,12 @@ import applyRoutes from "./routes/applyRoutes.js";
 import enrollRoutes from "./routes/enrollRoutes.js";
 
 dotenv.config();
+
 const app = express();
-
-// ✅ Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-// ✅ MongoDB Connection
+// ✅ MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -23,29 +22,22 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// ✅ Log every request (for debugging)
-app.use((req, res, next) => {
-  console.log(`📩 ${req.method} ${req.url}`);
-  next();
+// ✅ Basic test route (to verify backend is working)
+app.get("/api/test", (req, res) => {
+  res.json({ success: true, message: "Aaruchudar Backend Working ✅" });
 });
 
-// ✅ Routes
+// ✅ Route mounting
 app.use("/api/register", registerRoutes);
 app.use("/api/apply", applyRoutes);
 app.use("/api/enroll", enrollRoutes);
 
-// ✅ Root route
-app.get("/", (req, res) => {
-  res.send("✅ Aaruchudar Workshop | Course | Internship Backend is running successfully!");
-});
-
-// ✅ 404 handler
+// ✅ Handle unknown routes
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ Aaruchudar Workshop | Course | Internship Backend is running on port ${PORT}`);
 });
